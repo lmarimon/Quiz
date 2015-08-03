@@ -19,7 +19,10 @@ router.get('/quizes/new',					quizController.new);
 router.post('/quizes/create',				quizController.create);
 router.get('/quizes/:quizId(\\d+)/edit',	quizController.edit);
 router.put('/quizes/:quizId(\\d+)',			quizController.update);
+<<<<<<< HEAD
 router.delete('/quizes/:quizId(\\d+)',		quizController.destroy);
+=======
+>>>>>>> e9befd44e8da5af170d8f8936ba7f1e81ac312da
 
 // Página de créditos
 router.get('/author', function(req, res) {

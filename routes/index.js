@@ -23,7 +23,7 @@ router.delete('/quizes/:quizId(\\d+)',		quizController.destroy);
 
 // Página de créditos
 router.get('/author', function(req, res) {
-  res.render('author');
+  res.render('author', { title: 'Autor', errors: [] });
 });
 
 module.exports = router;

@@ -12,10 +12,22 @@ exports.load = function (req, res, next, quizId) {
 
 // GET /quizes
 exports.index = function (req, res) {
-	var search = req.query.search || '%';
+	var search = req.query.search || '';
 	search = '%' + search.replace(' ', '%') + '%';
-	
-	models.Quiz.findAll({where: ['pregunta like ?', search]}).then(function(quizes) {
+
+	models.Quiz.findAll({where: ['UPPER(pregunta) like ?', search.toUpperCase()]}).then(function(quizes) {
+		// Ordenación alfabética de las preguntas
+		var aux;
+		for (var i=1; i<quizes.length; i++) {
+			for (var j=i; j>0; j--) {
+				if (quizes[j].pregunta.toUpperCase() < quizes[j-1].pregunta.toUpperCase()){
+					aux = quizes[j];
+					quizes[j] = quizes[j-1];
+					quizes[j-1] = aux;
+				}
+			};
+		};
+		
 		res.render('quizes/index', {quizes: quizes, errors: []});
 	}).catch(function(error) { next(error); });
 };

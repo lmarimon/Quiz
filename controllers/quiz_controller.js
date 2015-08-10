@@ -2,7 +2,7 @@ var models = require('../models/models.js');
 
 // Autoload - factoriza el código si ruta incluye :quizId
 exports.load = function (req, res, next, quizId) {
-	models.Quiz.find(quizId).then(function(quiz) {
+	models.Quiz.find({where: {id: Number(quizId)}, include: [{model: models.Comment}]}).then(function(quiz) {
 		if (quiz){
 			req.quiz = quiz;
 			next();
@@ -15,19 +15,11 @@ exports.index = function (req, res) {
 	var search = req.query.search || '';
 	search = '%' + search.replace(' ', '%') + '%';
 
-	models.Quiz.findAll({where: ['UPPER(pregunta) like ?', search.toUpperCase()]}).then(function(quizes) {
-		// Ordenación alfabética de las preguntas
-		var aux;
-		for (var i=1; i<quizes.length; i++) {
-			for (var j=i; j>0; j--) {
-				if (quizes[j].pregunta.toUpperCase() < quizes[j-1].pregunta.toUpperCase()){
-					aux = quizes[j];
-					quizes[j] = quizes[j-1];
-					quizes[j-1] = aux;
-				}
-			};
-		};
-		
+	models.Quiz
+	.findAll({
+		where: ['UPPER(pregunta) like UPPER(?)', search],
+		order: 'pregunta asc'})
+	.then(function(quizes) {
 		res.render('quizes/index', {quizes: quizes, errors: []});
 	}).catch(function(error) { next(error); });
 };
@@ -63,7 +55,7 @@ exports.create = function (req, res) {
 		} else {
 			quiz
 			.save({fields: ["tema", "pregunta", "respuesta"]}) // save: guarda en DB campos pregunta y respuesta de quiz
-			.then( function(){ res.redirect('/quizes')}); // res.redirect: Redirección HTTP a lista de preguntas
+			.then(function(){ res.redirect('/quizes')}); // res.redirect: Redirección HTTP a lista de preguntas
 		}
 	}).catch(function(error){next(error)});
 };
@@ -86,8 +78,8 @@ exports.update = function(req, res) {
 			res.render('quizes/edit', {quiz: req.quiz, errors: err.errors});
 		} else {
 			req.quiz
-			.save( {fields: ["tema", "pregunta", "respuesta"]})
-			.then( function(){ res.redirect('/quizes');});
+			.save({fields: ["tema", "pregunta", "respuesta"]})
+			.then(function(){ res.redirect('/quizes');});
 		}
 	}).catch(function(error){next(error)});
 };

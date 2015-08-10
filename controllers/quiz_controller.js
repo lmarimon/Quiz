@@ -13,13 +13,10 @@ exports.load = function (req, res, next, quizId) {
 // GET /quizes
 exports.index = function (req, res) {
 	var search = req.query.search || '';
-	search = '%' + search.replace(' ', '%') + '%';
+	search = '%' + search.replace('/ /g', '%') + '%';
 
 	models.Quiz
-	.findAll({
-		where: ['UPPER(pregunta) like UPPER(?)', search],
-		order: 'pregunta asc'})
-	.then(function(quizes) {
+	.findAll({where: ['UPPER(pregunta) like UPPER(?)', search], order: 'pregunta asc'}).then(function(quizes) {
 		res.render('quizes/index', {quizes: quizes, errors: []});
 	}).catch(function(error) { next(error); });
 };
